@@ -30,4 +30,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'custom_mail' => [
+        'url' => env('CUSTOM_MAIL_URL'),
+        'key' => env('CUSTOM_MAIL_API_KEY')
+    ],
+
 ];
