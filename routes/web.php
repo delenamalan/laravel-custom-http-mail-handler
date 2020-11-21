@@ -20,6 +20,9 @@ Route::get('/', function () {
 });
 
 Route::get('/email', function () {
-    Mail::to('test@example.com')->send(new TestMail());
+    Mail::to(['test1@example.com', 'test2@example.com'])
+        ->cc('cc@example.com')
+        ->bcc('bcc@example.com')
+        ->send(new TestMail());
     return 'Email successfully sent!';
 });

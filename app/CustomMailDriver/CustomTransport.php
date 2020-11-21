@@ -35,11 +35,11 @@ class CustomTransport extends Transport
      * Create a new Custom transport instance.
      *
      * @param  \GuzzleHttp\ClientInterface  $client
-     * @param  string  $key
      * @param  string|null  $url
+     * @param  string  $key
      * @return void
      */
-    public function __construct(ClientInterface $client, $key, $url)
+    public function __construct(ClientInterface $client,  $url, $key)
     {
         $this->key = $key;
         $this->client = $client;
@@ -53,15 +53,9 @@ class CustomTransport extends Transport
     {
         $this->beforeSendPerformed($message);
 
-        $to = $this->getTo($message);
+        $payload = $this->getPayload($message);
 
-        $payload = $this->payload($message, $to);
-
-        $response = $this->client->request(
-            'POST',
-            $this->url,
-            $payload
-        );
+        $this->client->request('POST', $this->url, $payload);
 
         $this->sendPerformed($message);
 
@@ -72,59 +66,39 @@ class CustomTransport extends Transport
      * Get the HTTP payload for sending the message.
      *
      * @param  \Swift_Mime_SimpleMessage  $message
-     * @param  string  $to
      * @return array
      */
-    protected function payload(Swift_Mime_SimpleMessage $message, $to)
+    protected function getPayload(Swift_Mime_SimpleMessage $message)
     {
         // Change this to the format your API accepts
         return [
-            'auth' => [
-                'api',
-                $this->key,
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->key,
+                'Accept'        => 'application/json',
             ],
             'json' => [
-                [
-                    'name' => 'to',
-                    'contents' => $to,
-                ],
-                [
-                    'name' => 'message',
-                    'contents' => $message->toString(),
-                    'filename' => 'message.mime',
-                ],
+                'to' => $this->mapContactsToNameEmail($message->getTo()),
+                'cc' => $this->mapContactsToNameEmail($message->getCc()),
+                'bcc' => $this->mapContactsToNameEmail($message->getBcc()),
+                'message' => $message->getBody(),
+                'subject' => $message->getSubject(),
             ],
         ];
     }
 
-    /**
-     * Get the "to" payload field for the API request.
-     *
-     * @param  \Swift_Mime_SimpleMessage  $message
-     * @return string
-     */
-    protected function getTo(Swift_Mime_SimpleMessage $message)
+    protected function mapContactsToNameEmail($contacts)
     {
-        return collect($this->allContacts($message))->map(function ($display, $address) {
-            return $display ? $display." <{$address}>" : $address;
-        })->values()->implode(',');
-    }
-
-    /**
-     * Get all of the contacts for the message.
-     * 
-     * Collects contacts from 'to', 'cc' and 'bcc'.
-     *
-     * @param  \Swift_Mime_SimpleMessage  $message
-     * @return array
-     */
-    protected function allContacts(Swift_Mime_SimpleMessage $message)
-    {
-        return array_merge(
-            (array) $message->getTo(),
-            (array) $message->getCc(),
-            (array) $message->getBcc()
-        );
+        $formatted = [];
+        if (empty($contacts)) {
+            return [];
+        }
+        foreach ($contacts as $address => $display) {
+            $formatted[] =  [
+                'name' => $display,
+                'email' => $address,
+            ];
+        }
+        return $formatted;
     }
 
 }
