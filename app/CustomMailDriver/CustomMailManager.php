@@ -17,5 +17,3 @@ class CustomMailManager extends MailManager
         );
     }
 }
-
-

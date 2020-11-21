@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Mail\MailServiceProvider;
 
 use App\CustomMailDriver\CustomMailManager;
@@ -20,6 +19,7 @@ class CustomMailServiceProvider extends MailServiceProvider
             return new CustomMailManager($app);
         });
 
+        // Copied from Illuminate\Mail\MailServiceProvider
         $this->app->bind('mailer', function ($app) {
             return $app->make('mail.manager')->mailer();
         });

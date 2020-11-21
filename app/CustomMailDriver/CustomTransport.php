@@ -2,10 +2,8 @@
 
 namespace App\CustomMailDriver;
 
-use Illuminate\Mail\Transport\Transport;
-use Illuminate\Support\Facades\Log;
-
 use GuzzleHttp\ClientInterface;
+use Illuminate\Mail\Transport\Transport;
 use Swift_Mime_SimpleMessage;
 
 class CustomTransport extends Transport
