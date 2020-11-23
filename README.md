@@ -1,5 +1,7 @@
 # Laravel custom mail handler example project
 
+Code for the blog post: [How to create a custom HTTP mail driver for Laravel 7+](https://www.delenamalan.co.za/2020/laravel-custom-mail-driver.html).
+
 ## Installation
 
 ```
